@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+
+<html>
+<head>
+<style>
+#score {
+  border: 6px solid white;
+  border-radius: 10px;
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 4em;
+  text-shadow: 2px 2px 2px black;
+  margin: 1em;
+}
+
+#description {
+  font-size: 5em;
+  color: white;
+  height: 150px;
+  text-shadow: 2px 2px 2px black;
+  margin-top:200px;
+
+}
+@keyframes example {
+  0%   {background-color: LightGray;}
+  25%  {background-color: #909090	;}
+  50%  {background-color: #686868	;}
+  100% {background-color: #787878	;}
+}
+.header {
+  font-size: 6em;
+  background: LightGray;
+  text-align: center;
+  height: 100px;
+  text-shadow: 4px 4px 4px black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation-name:example;
+  animation-duration:5s;
+    animation-iteration-count: 3;
+
+}
+
+.container {
+ 
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color:#909090;
+}
+
+.selection {
+  display: flex;
+  justify-content: left;
+  margin-right:100px;
+  padding-right:50px;
+}
+
+.selection > div {
+  margin: 100px;
+  
+}
+
+img {
+  margin: 4em;
+  height: 250px;
+}
+
+.base {
+  border-radius: 50%;
+  padding: 0.25em;
+}
+
+.unselected {
+  border: 8px solid #2F4F4F;
+}
+
+.selected {
+  border: 8px solid green;
+}
+
+.ComputerSelected {
+  border: 8px solid red;
+}
+
+body {
+  background: 	#696969;
+  margin: 0;
+}
+#rules p{
+  justify-content:right;
+  font-family:italic;
+  width:20em;
+  
+  font-size:90px;
+  
+  }
+</style>
+</head>
+
+<body>
+  <div class="header">
+    <span>Rock Paper Scissors Lizard Spock!Select one</span>
+  </div>
+  <div class="container">
+    <div id="score"></div>
+    <div id="selection" class="selection"></div>
+    <div id="description"></div>
+    <div id="rules"><p>The rules:
+"Scissors decapitate Scissors cuts paper, paper covers rock, rock crushes 
+lizard, lizard poisons Spock, Spock smashes scissors, scissors decapitates
+ lizard, lizard eats paper, paper disproves Spock, Spock vaporizes rock, and 
+ as it always has, rock crushes scissors."</p>
+  </div>
+
+<script>  
+console.log(': Rock Paper Scissors Lizard Spock!');
+
+window.addEventListener('DOMContentLoaded', () => {
+  make();
+});
+
+
+const _SHAPES = {
+  scissors: {paper: 'cuts', lizard: 'decapitates'},
+  paper: {rock: 'covers', spock: 'disproves'},
+  rock: {lizard: 'crushes', scissors: 'crushes'},
+  lizard: {spock: 'poisons', paper: 'eats'},
+  spock: {scissors: 'smashes', rock: 'vaporizes'},
+};
+
+let _AIChoice = null;
+let _PlayerChoice = null;
+let _Score = [0, 0];
+
+
+function make() {
+  for (const k in _SHAPES) {
+    const div1 = document.createElement('div');
+    const div2 = document.createElement('div');
+    const img = document.createElement('img');
+    img.src = k + '.png';
+    div1.id = k;
+    div1.className = 'base unselected';
+    div1.appendChild(img);
+    div1.onclick = (e) => {
+      _Select(e);
+    };
+
+    div2.id = 'ai-' + k;
+    div2.className = 'base unselected';
+    div2.appendChild(div1);
+
+    document.getElementById('selection').appendChild(div2);
+  }
+  _UpdateScore();
+}
+
+function _UpdateScore() {
+  document.getElementById('score').innerText = _Score[0] + ':' + _Score[1];
+}
+
+// This is called when a player selects one of the choices, ie. rock, paper, etc...
+function _Select(evt) {
+  for (const k in _SHAPES) {
+    const node = document.getElementById(k);
+    node.className = "base unselected";
+  }
+  evt.currentTarget.className = "Base is selected";
+
+  _PlayerChoice = evt.currentTarget.id;
+
+  _AIChoose(50);
+}
+
+function _AIChoose(delay) {
+  for (const k in _SHAPES) {
+    const node = document.getElementById(k);
+    node.parentNode.className = "Base unselected";
+  }
+
+  const possibleSelections = Object.keys(_SHAPES);
+  const roll = Math.floor(Math.random() * possibleSelections.length);
+
+  const choice = possibleSelections[roll];
+  const node = document.getElementById(choice);
+  node.parentNode.className = "base computerSelected";
+  _AIChoice = choice;
+
+  if (delay < 200) {
+    setTimeout(() => {
+      _AIChoose(delay + 5);
+    }, delay);
+  } else {
+    _ResolveWinner();
+  }
+}
+
+function _ResolveWinner() {
+  let desc = '';
+  if (_AIChoice == _PlayerChoice) {
+    desc = 'Tie game.'
+  } else if (_AIChoice in _SHAPES[_PlayerChoice]) {
+    desc = 'Player Wins: ';
+    desc += (_PlayerChoice + ' ' + _SHAPES[_PlayerChoice][_AIChoice] +
+        ' ' + _AIChoice + '.');
+    _Score[0] += 1;
+  } else {
+    desc = 'Computer Wins: ';
+    desc += (_AIChoice + ' ' + _SHAPES[_AIChoice][_PlayerChoice] +
+        ' ' + _PlayerChoice + '.');
+    _Score[1] += 1;
+  }
+  document.getElementById('description').innerText = desc;
+  _UpdateScore();
+}
+
+
+function _IsWinner(player1, player2) {
+  return player2 in _CHOICES[player1];
+}</script>
+ </body>
+ </html>
